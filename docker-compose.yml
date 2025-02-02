@@ -19,12 +19,12 @@ services:
     volumes:
       - ./:/code:Z
       - "${STORAGE_DIR}:/code/storage:Z"
-
+      
   mongo-1:
     depends_on:
       generateconfig-processing:
         condition: service_completed_successfully
-    image: "mongo:${MONGO_VERSION}"
+    image: "mongodb-raspberrypi4-unofficial-r7.0.4"  # Custom image (need this for arm support)
     restart: unless-stopped
     command: ["--replSet", "${MONGO_REPLICA_SET}", "--port", "${MONGO_1_PORT}"]
     volumes:
