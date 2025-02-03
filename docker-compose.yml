@@ -24,7 +24,7 @@ services:
     depends_on:
       generateconfig-processing:
         condition: service_completed_successfully
-    image: "mongodb-raspberrypi4-unofficial-r7.0.4"  # Custom image (need this for arm support)
+    image: "mongo:4.4.6"  # older version (need this for older architecture)
     restart: unless-stopped
     command: ["--replSet", "${MONGO_REPLICA_SET}", "--port", "${MONGO_1_PORT}"]
     volumes:
