@@ -19,22 +19,24 @@ services:
     volumes:
       - ./:/code:Z
       - "${STORAGE_DIR}:/code/storage:Z"
-      
-  mongo-1:
-    depends_on:
-      generateconfig-processing:
-        condition: service_completed_successfully
-    image: "mongo:4.4.6"  # older version (need this for older architecture)
-    restart: unless-stopped
-    command: ["--replSet", "${MONGO_REPLICA_SET}", "--port", "${MONGO_1_PORT}"]
-    volumes:
-      - "${STORAGE_DIR}/mongo-1:/data/db:Z"
-    healthcheck:
-      test: test $$(mongosh --port ${MONGO_1_PORT} --quiet --eval "try {rs.initiate({_id:'${MONGO_REPLICA_SET}',members:[{_id:0,host:\"mongo-1:${MONGO_1_PORT}\"}]})} catch(e) {rs.status().ok}") -eq 1
-      interval: 10s
-      start_period: 30s
-    ports:
-      - "127.0.0.1:${MONGO_1_PORT}:${MONGO_1_PORT}"
+
+mongo-1:
+  depends_on:
+    generateconfig-processing:
+      condition: service_completed_successfully
+  image: "mongo:4.4.6"  # older version (need this for older architecture)
+  restart: unless-stopped
+  command: ["--replSet", "${MONGO_REPLICA_SET}", "--port", "${MONGO_1_PORT}"]
+  volumes:
+    - "${STORAGE_DIR}/mongo-1:/data/db:Z"
+  healthcheck:
+    test: echo 'db.runCommand("ping").ok' | mongosh --quiet --port ${MONGO_1_PORT} --eval
+    interval: 10s
+    timeout: 10s
+    retries: 5
+    start_period: 30s
+  ports:
+    - "127.0.0.1:${MONGO_1_PORT}:${MONGO_1_PORT}"
 
   redis:
     depends_on:
